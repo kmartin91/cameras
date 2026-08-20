@@ -1,0 +1,839 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "Accès caméra refusé — Réglages Système › Confidentialité" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access denied — System Settings › Privacy"
+          }
+        }
+      }
+    },
+    "Aucune" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
+          }
+        }
+      }
+    },
+    "Aucune caméra détectée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No camera detected"
+          }
+        }
+      }
+    },
+    "Autoriser dans Réglages Système › Général › Connexion…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow in System Settings › General › Login & Extensions…"
+          }
+        }
+      }
+    },
+    "Caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera"
+          }
+        }
+      }
+    },
+    "Caméra active" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active camera"
+          }
+        }
+      }
+    },
+    "Caméra en veille — reprend dès qu'un client regarde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera idle — resumes as soon as a client watches"
+          }
+        }
+      }
+    },
+    "Caméra virtuelle active — choisir « Cameras » dans Teams/Zoom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera active — pick “Cameras” in Teams/Zoom"
+          }
+        }
+      }
+    },
+    "Changer l'image d'attente…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change standby image…"
+          }
+        }
+      }
+    },
+    "Choisir une image d'attente…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a standby image…"
+          }
+        }
+      }
+    },
+    "Cut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cut"
+          }
+        }
+      }
+    },
+    "Durée de transition" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transition duration"
+          }
+        }
+      }
+    },
+    "Échanger caméra ↔ PiP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap camera ↔ PiP"
+          }
+        }
+      }
+    },
+    "Échec caméra virtuelle : %@ — réessayer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera failed: %@ — retry"
+          }
+        }
+      }
+    },
+    "Écran d'attente" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standby screen"
+          }
+        }
+      }
+    },
+    "En bas à droite" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottom right"
+          }
+        }
+      }
+    },
+    "En bas à gauche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bottom left"
+          }
+        }
+      }
+    },
+    "En haut à droite" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top right"
+          }
+        }
+      }
+    },
+    "En haut à gauche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top left"
+          }
+        }
+      }
+    },
+    "Figer l'image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeze frame"
+          }
+        }
+      }
+    },
+    "Fondu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dissolve"
+          }
+        }
+      }
+    },
+    "Fréquence de sortie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Output frame rate"
+          }
+        }
+      }
+    },
+    "Grande" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Large"
+          }
+        }
+      }
+    },
+    "Incrustation (PiP)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Picture in picture (PiP)"
+          }
+        }
+      }
+    },
+    "Installation de la caméra virtuelle…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installing the virtual camera…"
+          }
+        }
+      }
+    },
+    "Caméra virtuelle installée — en veille" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera installed — idle"
+          }
+        }
+      }
+    },
+    "Installer la caméra virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the virtual camera"
+          }
+        }
+      }
+    },
+    "Lancer à la connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Launch at login"
+          }
+        }
+      }
+    },
+    "Miroir" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mirror"
+          }
+        }
+      }
+    },
+    "Moyenne" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
+          }
+        }
+      }
+    },
+    "Ouvrir l'aperçu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open preview"
+          }
+        }
+      }
+    },
+    "Petite" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Small"
+          }
+        }
+      }
+    },
+    "Position" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position"
+          }
+        }
+      }
+    },
+    "Quitter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit"
+          }
+        }
+      }
+    },
+    "Redémarrez le Mac pour activer la caméra virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restart the Mac to activate the virtual camera"
+          }
+        }
+      }
+    },
+    "Réglages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Réinitialiser le cadrage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset framing"
+          }
+        }
+      }
+    },
+    "Résolution de sortie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Output resolution"
+          }
+        }
+      }
+    },
+    "Retirer l'image d'attente" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove standby image"
+          }
+        }
+      }
+    },
+    "Slide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slide"
+          }
+        }
+      }
+    },
+    "Taille" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size"
+          }
+        }
+      }
+    },
+    "Transition" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transition"
+          }
+        }
+      }
+    },
+    "Zoom %.1f× — cadrage et couleur dans l'aperçu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom %.1f× — framing and color in the preview"
+          }
+        }
+      }
+    },
+    "🔴 On air — un client lit la caméra virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "🔴 On air — a client is reading the virtual camera"
+          }
+        }
+      }
+    },
+    "✓ %@" : {
+
+    },
+    "Aperçu Cameras" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cameras Preview"
+          }
+        }
+      }
+    },
+    "Cameras" : {
+
+    },
+    "1×" : {
+
+    },
+    "300 ms" : {
+
+    },
+    "450 ms" : {
+
+    },
+    "600 ms" : {
+
+    },
+    "720p" : {
+
+    },
+    "1080p" : {
+
+    },
+    "30 ips" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 fps"
+          }
+        }
+      }
+    },
+    "24 ips" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24 fps"
+          }
+        }
+      }
+    },
+    "15 ips" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15 fps"
+          }
+        }
+      }
+    },
+    "Capturer l'image (PNG)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshot (PNG)"
+          }
+        }
+      }
+    },
+    "Scènes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scenes"
+          }
+        }
+      }
+    },
+    "Scène %lld — %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scene %lld — %@"
+          }
+        }
+      }
+    },
+    "Enregistrer la scène actuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save current scene"
+          }
+        }
+      }
+    },
+    "Dans la scène %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Into scene %lld"
+          }
+        }
+      }
+    },
+    "Rotation" : {
+
+    },
+    "Volet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wipe"
+          }
+        }
+      }
+    },
+    "Punch" : {
+
+    },
+    "Fondu flouté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blur dissolve"
+          }
+        }
+      }
+    },
+    "Raccourcis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortcuts"
+          }
+        }
+      }
+    },
+    "Filigrane" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watermark"
+          }
+        }
+      }
+    },
+    "Afficher le filigrane" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show watermark"
+          }
+        }
+      }
+    },
+    "Choisir l'image du filigrane…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose watermark image…"
+          }
+        }
+      }
+    },
+    "Changer l'image du filigrane…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change watermark image…"
+          }
+        }
+      }
+    },
+    "Retirer le filigrane" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove watermark"
+          }
+        }
+      }
+    },
+    "Aperçu compact (flottant)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact preview (floating)"
+          }
+        }
+      }
+    },
+    "Aperçu compact" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact Preview"
+          }
+        }
+      }
+    },
+    "Luminosité" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brightness"
+          }
+        }
+      }
+    },
+    "Contraste" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contrast"
+          }
+        }
+      }
+    },
+    "Saturation" : {
+
+    },
+    "Température" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temperature"
+          }
+        }
+      }
+    },
+    "Réinitialiser la couleur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset color"
+          }
+        }
+      }
+    },
+    "Sélectionner une caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a camera"
+          }
+        }
+      }
+    },
+    "Bascule la caméra active de Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switches the active camera in Cameras."
+          }
+        }
+      }
+    },
+    "Numéro de caméra (1-9)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera number (1-9)"
+          }
+        }
+      }
+    },
+    "Figer/défiger l'image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toggle freeze frame"
+          }
+        }
+      }
+    },
+    "Fige ou défige le flux diffusé par Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freezes or unfreezes the stream broadcast by Cameras."
+          }
+        }
+      }
+    },
+    "Affiche ou masque l'écran d'attente de Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows or hides the Cameras standby screen."
+          }
+        }
+      }
+    },
+    "Échanger caméra et PiP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap camera and PiP"
+          }
+        }
+      }
+    },
+    "Échange la caméra active et l'incrustation de Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swaps the active camera and the PiP in Cameras."
+          }
+        }
+      }
+    },
+    "Rappeler une scène" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recall a scene"
+          }
+        }
+      }
+    },
+    "Rappelle une scène enregistrée de Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recalls a saved Cameras scene."
+          }
+        }
+      }
+    },
+    "Numéro de scène (1-4)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scene number (1-4)"
+          }
+        }
+      }
+    },
+    "Capturer une image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a snapshot"
+          }
+        }
+      }
+    },
+    "Enregistre l'image diffusée par Cameras en PNG sur le Bureau." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saves the image broadcast by Cameras as a PNG on the Desktop."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

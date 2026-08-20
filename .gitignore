@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# Xcode — état utilisateur et produits de build
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Divers
+*.moved-aside
+*.profraw
+timeline.xctimeline
+playground.xcworkspace
+
+# Signature locale (contient le Team ID)
+Config/ExportOptions.plist
