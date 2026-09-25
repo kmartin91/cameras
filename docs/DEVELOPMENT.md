@@ -21,10 +21,11 @@ Cameras/
 ├── CameraManager.swift          découverte, permission, hotplug, scènes, cycle de vie des AVCaptureSession
 ├── Pipeline.swift               ★ compositing : frames brutes → transition/PiP/filigrane/attente → frames composées
 ├── PreviewWindow.swift          aperçus (NSView/CALayer) + contrôles de cadrage et de couleur
+├── StudioWindow.swift           Mode Studio : fenêtre régie AppKit + vue SwiftUI, clavier → StudioCommand
 ├── VirtualCameraSink.swift      pousse les frames composées vers l'extension via CoreMediaIO
 ├── SystemExtensionManager.swift installe/active l'extension (OSSystemExtensionRequest)
 ├── HotKeys.swift                raccourcis globaux (Carbon RegisterEventHotKey, modificateurs configurables)
-├── AppIntents.swift             actions Raccourcis (sélection, figer, attente, swap, scène, capture)
+├── AppIntents.swift             actions Raccourcis (sélection, figer, attente, swap, scène, capture, régie, rotation, rage quit)
 └── Localizable.xcstrings        catalogue fr (source) → en
 
 CameraExtension/
@@ -33,7 +34,7 @@ CameraExtension/
 
 Config/
 ├── Cameras.entitlements         system-extension.install + device.camera + app group
-├── Cameras-Info.plist           CFBundleURLTypes (scheme cameras://), fusionné avec l'Info.plist généré
+├── Cameras-Info.plist           CFBundleURLTypes (scheme cameras://) + NSCameraUseContinuityCameraDeviceType, fusionné avec l'Info.plist généré
 ├── CameraExtension.entitlements sandbox + caméra + app group
 └── CameraExtension-Info.plist   CMIOExtensionMachServiceName ($(TeamIdentifierPrefix)…)
 ```
@@ -54,6 +55,14 @@ macOS n'a pas `AVCaptureMultiCamSession`, donc une `AVCaptureSession` par camér
 Tout passe par `Pipeline` — l'aperçu n'est jamais branché directement sur la caméra (`AVCaptureVideoPreviewLayer` court-circuiterait le compositing, la caméra virtuelle ne verrait pas les transitions). Toutes les sources sont normalisées à la taille de sortie en BGRA aspect-fill : format de sortie constant, condition nécessaire pour un flux CMIO.
 
 Pendant un gel, un écran d'attente ou un redémarrage de capture, un timer de maintien sert la dernière image (ou l'image d'attente) à ~15 fps — les clients ne voient jamais le « NO SIGNAL » de l'extension pendant la ~1 s de démarrage d'une session.
+
+La **rotation continue** est appliquée à l'image programme (après la transition, avant PiP et filigrane, qui restent droits). L'angle avance avec le temps réel (`CACurrentMediaTime`) et non au nombre de frames, donc la vitesse ne dépend pas de la fréquence de capture ; à l'arrêt, l'image rejoint l'horizontale la plus proche en 0,6 s (smoothstep).
+
+Le **rage quit** est une séquence de 2,7 s rendue par un timer dédié à 30 fps. Les frames live continuent d'arriver, mais `emit` les détourne comme base de l'animation au lieu de les diffuser : teinte rouge, tremblement, bandeau (texte `CIAttributedTextImageGenerator` rendu une seule fois), extinction façon tube cathodique. À la fin, le pipeline passe lui-même en attente « noir forcé » (`blackout`, sans l'image d'attente) avant de notifier `CameraManager`, pour qu'aucune frame live ne fuite entre l'animation et la coupure de la capture.
+
+### Mode Studio
+
+La régie est une `NSWindow` (pas une scène SwiftUI) pour pouvoir l'ouvrir depuis un raccourci global, une URL ou un App Intent. `StudioWindow.sendEvent` intercepte les `keyDown` sans ⌘/⌃ avant tout le reste de la chaîne : aucun bouton focalisé ne peut « voler » Espace ou les flèches, et les touches sans action ne font pas bip. Chiffres et flèches sont lus par `keyCode` (position physique, identique en AZERTY/QWERTY), les lettres par `charactersIgnoringModifiers` (la touche marquée M est Miroir quel que soit le clavier). Toutes les actions, clavier ou clic, passent par `StudioDesk.perform(_:)`, qui affiche un retour visuel. À la fermeture, la vue est détruite et le consommateur d'aperçu libéré, donc la capture s'arrête si plus rien ne regarde.
 
 ### Sobriété
 
@@ -83,6 +92,16 @@ macOS ne charge une Camera Extension que si elle est signée par un compte Apple
 
 Vérification : `systemextensionsctl list`.
 
+### Cycle de vie de l'extension
+
+Mettre l'app à la corbeille, ou la remplacer dans le Finder lors d'une mise à jour, déclenche côté `sysextd` une désactivation de l'extension (`deactivateExtension via willMoveApp`) : la caméra « Cameras » disparaît des apps de visio. L'app ne se fie donc à aucun état mémorisé : au lancement, `SystemExtensionManager.synchronize()` interroge `sysextd` (`OSSystemExtensionRequest.propertiesRequest`) puis :
+
+- extension absente ou en cours de suppression alors qu'elle avait déjà été installée → réinstallation (macOS peut redemander l'autorisation) ;
+- extension active mais d'un autre `CFBundleVersion` que celle embarquée → mise à niveau (`.replace`) ;
+- même version → rien, pour ne pas relancer l'extension (et changer son deviceID CMIO) à chaque lancement.
+
+Le menu affiche l'état réel (absente, en attente d'autorisation, désactivée, en suppression, installée mais non détectée) et propose **Réinstaller la caméra virtuelle** : désactivation puis réactivation, la réactivation étant tentée même si la désactivation échoue (extension déjà absente).
+
 ## Distribution
 
 Pour un autre Mac que celui de développement : export Developer ID + notarisation.
@@ -106,3 +125,13 @@ spctl -a -vv build/export/Cameras.app   # « accepted, source=Notarized Develope
 - Sortie 720p ou 1080p (changer la résolution redémarre la session active), 15–30 fps.
 - Le PiP maintient une seconde session caméra ouverte en continu (VGA, 15 ips) — seule option à coût énergétique permanent.
 - Les raccourcis offrent trois jeux de modificateurs ; les touches elles-mêmes ne sont pas réassignables.
+
+## Diagnostic caméras
+
+À chaque changement de la liste, `CameraManager` journalise toutes les caméras vues par macOS, avec leur type AVFoundation, leur transport (fourCC) et le verdict du filtre (retenue ou ignorée comme virtuelle). Les échecs d'ouverture de session et les erreurs d'exécution sont journalisés aussi (en public, lisibles sans profil de débogage) :
+
+```sh
+/usr/bin/log show --last 10m --info --predicate 'subsystem == "studio.kma.Cameras"' | grep -E "devices:|makeSession|session:"
+```
+
+Sur Mac Apple Silicon, la caméra intégrée est servie par `appleh13camerad`/`appleh16camerad` comme extension CMIO de transport `bltn` et de type `builtInWideAngleCamera`. Les caméras iPhone (Continuity Camera) exigent sur macOS 14+ le type `continuityCamera` et la clé Info.plist `NSCameraUseContinuityCameraDeviceType`.

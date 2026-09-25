@@ -1,4 +1,5 @@
 import AVFoundation
+import AppKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
 import QuartzCore
@@ -19,6 +20,20 @@ enum PiPCorner: String, CaseIterable {
     case topLeft
 }
 
+enum SpinSpeed: String, CaseIterable {
+    case slow
+    case medium
+    case fast
+
+    var degreesPerSecond: Double {
+        switch self {
+        case .slow: return 30
+        case .medium: return 90
+        case .fast: return 270
+        }
+    }
+}
+
 struct SourceTransform {
     var mirror = false
     var zoom = 1.0
@@ -35,6 +50,7 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     let queue = DispatchQueue(label: "studio.kma.cameras.pipeline")
 
     var onTransitionEnded: (() -> Void)?
+    var onRageQuitEnded: (() -> Void)?
 
     private var outputSize = CGSize(width: 1280, height: 720)
     private var previewHandlers: [UUID: (CVPixelBuffer) -> Void] = [:]
@@ -63,6 +79,17 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var lastBuffer: CVPixelBuffer?
     private var heldBuffer: CVPixelBuffer?
     private var holdTimer: DispatchSourceTimer?
+    private var spinRate = 0.0
+    private var spinAngle = 0.0
+    private var spinClock: CFTimeInterval?
+    private var spinSettleFrom: Double?
+    private var spinSettleStart: CFTimeInterval = 0
+    private var rageStart: CFTimeInterval?
+    private var rageTimer: DispatchSourceTimer?
+    private var rageBase: CIImage?
+    private var rageBanner: CIImage?
+    private var blackout = false
+    private let rageDuration = 2.7
     private let ciContext = CIContext(options: [.cacheIntermediates: false, .workingColorSpace: NSNull()])
     private var pool: CVPixelBufferPool?
     private let poolAuxAttributes = [kCVPixelBufferPoolAllocationThresholdKey: 6] as CFDictionary
@@ -138,7 +165,38 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     func setStandby(_ standby: Bool) {
         queue.async {
             self.standby = standby
+            if !standby, self.blackout {
+                self.blackout = false
+                self.standbyBuffer = nil
+            }
             self.updateHold()
+        }
+    }
+
+    func setSpin(_ degreesPerSecond: Double) {
+        queue.async {
+            if degreesPerSecond != 0 {
+                self.spinRate = degreesPerSecond
+                self.spinSettleFrom = nil
+            } else if self.spinRate != 0 {
+                self.spinRate = 0
+                self.spinSettleFrom = self.spinAngle
+                self.spinSettleStart = CACurrentMediaTime()
+            }
+        }
+    }
+
+    func rageQuit(caption: String) {
+        queue.async {
+            guard self.rageStart == nil else { return }
+            self.rageBase = self.displayedBuffer.map { CIImage(cvPixelBuffer: $0) }
+            self.rageBanner = self.makeRageBanner(caption: caption)
+            self.rageStart = CACurrentMediaTime()
+            let timer = DispatchSource.makeTimerSource(queue: self.queue)
+            timer.schedule(deadline: .now(), repeating: 1.0 / 30.0, leeway: .milliseconds(5))
+            timer.setEventHandler { [weak self] in self?.renderRageFrame() }
+            timer.resume()
+            self.rageTimer = timer
         }
     }
 
@@ -172,8 +230,12 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
 
     func snapshotBuffer(_ completion: @escaping (CVPixelBuffer?) -> Void) {
         queue.async {
-            completion(self.holdTimer != nil ? (self.heldBuffer ?? self.lastBuffer) : self.lastBuffer)
+            completion(self.displayedBuffer)
         }
+    }
+
+    private var displayedBuffer: CVPixelBuffer? {
+        holdTimer != nil ? (heldBuffer ?? lastBuffer) : lastBuffer
     }
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
@@ -186,7 +248,7 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         if output === fadingOutput {
             let image = fill(CIImage(cvPixelBuffer: buffer), into: fullRect, transform: fadingTransform)
             fadingImage = image
-            if transitionStart == nil { emit(composite(image)) }
+            if transitionStart == nil { emit(composite(applySpin(image))) }
             return
         }
         guard output === activeOutput else { return }
@@ -204,7 +266,7 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         } else if fadingOutput != nil {
             endTransition()
         }
-        emit(composite(result))
+        emit(composite(applySpin(result)))
     }
 
 
@@ -229,6 +291,7 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     }
 
     private func serveHeldFrame() {
+        guard rageStart == nil else { return }
         if standby, standbyBuffer == nil {
             standbyBuffer = renderStandby()
             heldBuffer = standbyBuffer
@@ -244,12 +307,175 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private func renderStandby() -> CVPixelBuffer? {
         let rect = CGRect(origin: .zero, size: outputSize)
         var image = CIImage(color: .black).cropped(to: rect)
-        if let standbyImage {
+        if let standbyImage, !blackout {
             image = fit(standbyImage, into: rect).composited(over: image)
         }
         guard let buffer = makePixelBuffer() else { return nil }
         ciContext.render(image, to: buffer)
         return buffer
+    }
+
+
+    private func applySpin(_ image: CIImage) -> CIImage {
+        let angle = advanceSpin()
+        guard abs(angle) > 0.01 else { return image }
+        let rect = CGRect(origin: .zero, size: outputSize)
+        let turn = CGAffineTransform(translationX: rect.midX, y: rect.midY)
+            .rotated(by: -angle * .pi / 180)
+            .translatedBy(x: -rect.midX, y: -rect.midY)
+        return image.transformed(by: turn)
+            .composited(over: CIImage(color: .black).cropped(to: rect))
+            .cropped(to: rect)
+    }
+
+    private func advanceSpin() -> Double {
+        let now = CACurrentMediaTime()
+        let elapsed = min(max(now - (spinClock ?? now), 0), 0.1)
+        spinClock = now
+        if spinRate != 0 {
+            spinAngle = (spinAngle + spinRate * elapsed).truncatingRemainder(dividingBy: 360)
+            return spinAngle
+        }
+        guard let from = spinSettleFrom else { return 0 }
+        let progress = min((now - spinSettleStart) / 0.6, 1)
+        guard progress < 1 else {
+            spinSettleFrom = nil
+            spinAngle = 0
+            return 0
+        }
+        let start = from < 0 ? from + 360 : from
+        let target = start > 180 ? 360.0 : 0
+        spinAngle = start + (target - start) * smoothstep(progress)
+        return spinAngle
+    }
+
+
+    private func renderRageFrame() {
+        guard let start = rageStart else { return }
+        let elapsed = CACurrentMediaTime() - start
+        guard elapsed < rageDuration else {
+            finishRageQuit()
+            return
+        }
+        guard !previewHandlers.isEmpty || virtualSink != nil, let buffer = makePixelBuffer() else { return }
+        ciContext.render(rageFrame(at: elapsed), to: buffer)
+        deliver(buffer)
+    }
+
+    private func finishRageQuit() {
+        rageTimer?.cancel()
+        rageTimer = nil
+        rageStart = nil
+        rageBase = nil
+        rageBanner = nil
+        blackout = true
+        standby = true
+        standbyBuffer = nil
+        updateHold()
+        onRageQuitEnded?()
+    }
+
+    private func rageFrame(at t: Double) -> CIImage {
+        let rect = CGRect(origin: .zero, size: outputSize)
+        let black = CIImage(color: .black).cropped(to: rect)
+        let shakeEnd = 1.5
+        let collapseEnd = 2.1
+        guard t < collapseEnd else { return black }
+        let p = min(t / shakeEnd, 1)
+        let shaking = t < shakeEnd
+        let amplitude = shaking ? outputSize.height * (0.006 + 0.03 * p) : 0
+        let tilt = shaking ? Double.random(in: -1...1) * (0.3 + 2.2 * p) * .pi / 180 : 0
+        let scale = 1.04 + 0.12 * p
+        let shake = CGAffineTransform(
+            translationX: rect.midX + Double.random(in: -1...1) * amplitude,
+            y: rect.midY + Double.random(in: -1...1) * amplitude)
+            .rotated(by: tilt)
+            .scaledBy(x: scale, y: scale)
+            .translatedBy(x: -rect.midX, y: -rect.midY)
+        var frame = rageTint(rageBase ?? black, strength: min(t / 0.4, 1)).transformed(by: shake)
+        let impact = max(0, 1 - abs(t - 0.37) / 0.08)
+        if impact > 0 {
+            frame = adjusted(frame, brightness: 0.4 * impact, saturation: 1)
+        }
+        if let rageBanner, t > 0.15 {
+            frame = slam(rageBanner, elapsed: t - 0.15, in: rect).composited(over: frame)
+        }
+        frame = frame.composited(over: black).cropped(to: rect)
+        guard !shaking else { return frame }
+        return crtOff(frame, progress: (t - shakeEnd) / (collapseEnd - shakeEnd), in: rect)
+            .composited(over: black)
+            .cropped(to: rect)
+    }
+
+    private func rageTint(_ image: CIImage, strength: Double) -> CIImage {
+        let filter = CIFilter.colorMonochrome()
+        filter.inputImage = image
+        filter.color = CIColor(red: 1, green: 0.1, blue: 0.06)
+        filter.intensity = Float(0.55 * strength)
+        return filter.outputImage ?? image
+    }
+
+    private func adjusted(_ image: CIImage, brightness: Double, saturation: Double) -> CIImage {
+        let filter = CIFilter.colorControls()
+        filter.inputImage = image
+        filter.brightness = Float(brightness)
+        filter.saturation = Float(saturation)
+        return filter.outputImage ?? image
+    }
+
+    private func slam(_ banner: CIImage, elapsed: Double, in rect: CGRect) -> CIImage {
+        let progress = min(elapsed / 0.22, 1)
+        let scale = 1 + 2.5 * pow(1 - progress, 3)
+        let placed = banner.transformed(by: CGAffineTransform(translationX: rect.midX, y: rect.midY).scaledBy(x: scale, y: scale))
+        guard progress < 1 else { return placed }
+        let fade = CIFilter.colorMatrix()
+        fade.inputImage = placed
+        fade.aVector = CIVector(x: 0, y: 0, z: 0, w: progress)
+        return fade.outputImage ?? placed
+    }
+
+    private func crtOff(_ image: CIImage, progress: Double, in rect: CGRect) -> CIImage {
+        let squash = min(progress / 0.6, 1)
+        let height = max(1 - squash * squash, 0.006)
+        let width = progress < 0.6 ? 1 : max(1 - (progress - 0.6) / 0.4, 0.004)
+        let squeeze = CGAffineTransform(translationX: rect.midX, y: rect.midY)
+            .scaledBy(x: width, y: height)
+            .translatedBy(x: -rect.midX, y: -rect.midY)
+        return adjusted(image, brightness: 0.1 + 0.6 * squash, saturation: 1 - squash)
+            .cropped(to: rect)
+            .transformed(by: squeeze)
+    }
+
+    private func makeRageBanner(caption: String) -> CIImage? {
+        let height = outputSize.height
+        guard let title = textImage("RAGE QUIT", size: height * 0.2, weight: .black),
+              let subtitle = textImage(caption, size: height * 0.07, weight: .heavy) else { return nil }
+        let width = outputSize.width * 1.6
+        let titleHeight = title.extent.height * 1.1
+        let captionHeight = subtitle.extent.height * 1.6
+        let total = titleHeight + captionHeight
+        let titleBand = CGRect(x: -width / 2, y: total / 2 - titleHeight, width: width, height: titleHeight)
+        let captionBand = CGRect(x: -width / 2, y: -total / 2, width: width, height: captionHeight)
+        let red = CIImage(color: CIColor(red: 0.86, green: 0.06, blue: 0.1)).cropped(to: titleBand)
+        let dark = CIImage(color: CIColor(red: 0.06, green: 0.06, blue: 0.06)).cropped(to: captionBand)
+        let stamp = centered(title, in: titleBand.offsetBy(dx: 0, dy: -height * 0.012))
+            .composited(over: red)
+            .composited(over: centered(subtitle, in: captionBand).composited(over: dark))
+        return stamp.transformed(by: CGAffineTransform(rotationAngle: 0.1))
+    }
+
+    private func textImage(_ string: String, size: CGFloat, weight: NSFont.Weight) -> CIImage? {
+        let filter = CIFilter.attributedTextImageGenerator()
+        filter.text = NSAttributedString(string: string, attributes: [
+            .font: NSFont.systemFont(ofSize: size, weight: weight),
+            .foregroundColor: NSColor.white,
+        ])
+        filter.scaleFactor = 1
+        return filter.outputImage
+    }
+
+    private func centered(_ image: CIImage, in rect: CGRect) -> CIImage {
+        image.transformed(by: CGAffineTransform(translationX: rect.midX - image.extent.midX, y: rect.midY - image.extent.midY))
     }
 
 
@@ -434,6 +660,10 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     }
 
     private func emit(_ image: CIImage) {
+        if rageStart != nil {
+            rageBase = image
+            return
+        }
         guard !previewHandlers.isEmpty || virtualSink != nil else { return }
         guard let outputBuffer = makePixelBuffer() else { return }
         ciContext.render(image, to: outputBuffer)
@@ -443,10 +673,14 @@ final class Pipeline: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             holdTimer = nil
             heldBuffer = nil
         }
+        deliver(outputBuffer)
+    }
+
+    private func deliver(_ buffer: CVPixelBuffer) {
         if !previewHandlers.isEmpty {
             let handlers = Array(previewHandlers.values)
-            DispatchQueue.main.async { for handler in handlers { handler(outputBuffer) } }
+            DispatchQueue.main.async { for handler in handlers { handler(buffer) } }
         }
-        virtualSink?(outputBuffer)
+        virtualSink?(buffer)
     }
 }

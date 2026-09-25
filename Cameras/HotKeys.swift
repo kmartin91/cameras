@@ -29,6 +29,8 @@ enum HotKeys {
     static let snapshotIndex = 12
     static let sceneBaseIndex = 13
     static let sceneCount = 4
+    static let studioIndex = 17
+    static let rageQuitIndex = 18
 
     private static var callback: ((Int) -> Void)?
     private static var refs: [EventHotKeyRef] = []
@@ -36,6 +38,7 @@ enum HotKeys {
 
     private static let baseKeyCodes: [UInt32] = [18, 19, 20, 21, 23, 22, 26, 28, 25, 29, 35, 34, 1]
     private static let sceneKeyCodes: [UInt32] = [18, 19, 20, 21]
+    private static let actionKeyCodes: [(code: UInt32, id: Int)] = [(15, studioIndex), (7, rageQuitIndex)]
 
     static func install(_ handler: @escaping (Int) -> Void, modifiers: HotkeyModifiers) {
         callback = handler
@@ -60,6 +63,9 @@ enum HotKeys {
         }
         for (slot, code) in sceneKeyCodes.enumerated() {
             registerKey(code, modifiers.carbon | UInt32(shiftKey), id: sceneBaseIndex + slot)
+        }
+        for action in actionKeyCodes {
+            registerKey(action.code, modifiers.carbon, id: action.id)
         }
     }
 

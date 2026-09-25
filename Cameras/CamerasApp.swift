@@ -23,6 +23,7 @@ struct CamerasApp: App {
     @StateObject private var manager = CameraManager()
 
     private var statusIcon: String {
+        if manager.rageQuitArmed || manager.rageQuitting { return "flame.fill" }
         if manager.standbyActive { return "moon.circle.fill" }
         if manager.frozen { return "pause.circle.fill" }
         if manager.onAir { return "record.circle" }
@@ -89,6 +90,11 @@ struct MenuContent: View {
             manager.captureSnapshot()
         }
         .keyboardShortcut("s", modifiers: mods)
+        Button("Rage quit") {
+            manager.rageQuit()
+        }
+        .keyboardShortcut("x", modifiers: mods)
+        .disabled(manager.rageQuitting)
         sceneMenu
         if manager.devices.count > 1 {
             if manager.pipID != nil {
@@ -126,6 +132,13 @@ struct MenuContent: View {
                 Text("180°").tag(180)
                 Text("270°").tag(270)
             }
+            Toggle("Rotation continue", isOn: $manager.spinning)
+            Picker("Vitesse de rotation", selection: $manager.spinSpeed) {
+                ForEach(SpinSpeed.allCases, id: \.self) { speed in
+                    Text(speed.label).tag(speed)
+                }
+            }
+            Toggle("Sens horaire", isOn: $manager.spinClockwise)
             Button("Zoom +") { manager.adjustZoom(by: 0.1) }
             Button("Zoom −") { manager.adjustZoom(by: -0.1) }
             Button("Réinitialiser le cadrage") { manager.resetFraming() }
@@ -172,6 +185,10 @@ struct MenuContent: View {
             Toggle("Lancer à la connexion", isOn: $manager.launchAtLogin)
         }
         Divider()
+        Button("Mode Studio (régie)") {
+            StudioWindowController.shared.show(manager)
+        }
+        .keyboardShortcut("r", modifiers: mods)
         Button("Ouvrir l'aperçu") {
             openWindow(id: "preview")
             NSApp.activate(ignoringOtherApps: true)
@@ -253,28 +270,66 @@ struct VirtualCameraMenu: View {
         if manager.virtualCameraRunning {
             Text("Caméra virtuelle active — choisir « Cameras » dans Teams/Zoom")
         } else {
-            switch systemExtension.state {
-            case .installing:
-                Text("Installation de la caméra virtuelle…")
-            case .needsApproval:
-                Button("Autoriser dans Réglages Système › Général › Connexion…") {
-                    NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!)
-                }
-            case .needsReboot:
-                Text("Redémarrez le Mac pour activer la caméra virtuelle")
-            case .failed(let message):
-                Button("Échec caméra virtuelle : \(message) — réessayer") {
-                    manager.installVirtualCamera()
-                }
-            case .idle, .active:
-                if systemExtension.installed {
-                    Text("Caméra virtuelle installée — en veille")
-                } else {
-                    Button("Installer la caméra virtuelle") {
-                        manager.installVirtualCamera()
-                    }
-                }
+            status
+        }
+        if showsReinstall {
+            Button("Réinstaller la caméra virtuelle") {
+                manager.reinstallVirtualCamera()
             }
         }
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        switch systemExtension.state {
+        case .installing:
+            Text("Installation de la caméra virtuelle…")
+        case .needsApproval:
+            approvalButton
+        case .needsReboot:
+            Text("Redémarrez le Mac pour activer la caméra virtuelle")
+        case .failed(let message):
+            Button("Échec caméra virtuelle : \(message) — réessayer") {
+                manager.reinstallVirtualCamera()
+            }
+        case .idle, .active:
+            switch systemExtension.installation {
+            case .unknown:
+                Text("Vérification de la caméra virtuelle…")
+            case .missing:
+                Button("Installer la caméra virtuelle") {
+                    manager.installVirtualCamera()
+                }
+            case .awaitingApproval:
+                approvalButton
+            case .disabled:
+                Button("Caméra virtuelle désactivée — l'activer dans Réglages Système…") {
+                    openExtensionSettings()
+                }
+            case .uninstalling:
+                Text("Caméra virtuelle en cours de suppression — redémarrez le Mac")
+            case .enabled(let version, let build):
+                Text("Caméra virtuelle \(version) (\(build)) installée mais non détectée")
+            }
+        }
+    }
+
+    private var showsReinstall: Bool {
+        switch systemExtension.state {
+        case .installing, .failed:
+            return false
+        default:
+            return systemExtension.installation != .missing
+        }
+    }
+
+    private var approvalButton: some View {
+        Button("Autoriser dans Réglages Système › Général › Connexion…") {
+            openExtensionSettings()
+        }
+    }
+
+    private func openExtensionSettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension")!)
     }
 }

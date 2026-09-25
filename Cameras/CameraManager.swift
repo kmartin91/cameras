@@ -79,6 +79,23 @@ final class CameraManager: ObservableObject {
     @Published var warmth = 0.0 {
         didSet { persistActiveTransform() }
     }
+    @Published var spinning = false {
+        didSet { pushSpin() }
+    }
+    @Published var spinSpeed: SpinSpeed {
+        didSet {
+            UserDefaults.standard.set(spinSpeed.rawValue, forKey: "spinSpeed")
+            pushSpin()
+        }
+    }
+    @Published var spinClockwise: Bool {
+        didSet {
+            UserDefaults.standard.set(spinClockwise, forKey: "spinClockwise")
+            pushSpin()
+        }
+    }
+    @Published private(set) var rageQuitArmed = false
+    @Published private(set) var rageQuitting = false
     @Published private(set) var scenes: [Int: CameraScene] = [:]
     @Published var hotkeyModifiers: HotkeyModifiers {
         didSet {
@@ -171,6 +188,7 @@ final class CameraManager: ObservableObject {
     private var clientsWatching = false
     private var thermalThrottled = false
     private var watermarkImage: CIImage?
+    private var rageQuitDisarm: Task<Void, Never>?
 
     init() {
         let defaults = UserDefaults.standard
@@ -185,11 +203,14 @@ final class CameraManager: ObservableObject {
         watermarkEnabled = defaults.object(forKey: "watermarkEnabled") as? Bool ?? false
         watermarkCorner = PiPCorner(rawValue: defaults.string(forKey: "watermarkCorner") ?? "") ?? .bottomRight
         watermarkScale = defaults.object(forKey: "watermarkScale") as? Double ?? 0.15
+        spinSpeed = SpinSpeed(rawValue: defaults.string(forKey: "spinSpeed") ?? "") ?? .medium
+        spinClockwise = defaults.object(forKey: "spinClockwise") as? Bool ?? true
         launchAtLogin = SMAppService.mainApp.status == .enabled
 
         var types: [AVCaptureDevice.DeviceType] = [.builtInWideAngleCamera]
         if #available(macOS 14.0, *) {
             types.append(.external)
+            types.append(.continuityCamera)
         } else {
             types.append(.externalUnknown)
         }
@@ -210,6 +231,9 @@ final class CameraManager: ObservableObject {
                 self?.fadingSession = nil
             }
         }
+        pipeline.onRageQuitEnded = { [weak self] in
+            Task { @MainActor in self?.rageQuitEnded() }
+        }
         HotKeys.install({ [weak self] index in
             Task { @MainActor in
                 guard let self else { return }
@@ -222,6 +246,10 @@ final class CameraManager: ObservableObject {
                     self.standbyActive.toggle()
                 case HotKeys.snapshotIndex:
                     self.captureSnapshot()
+                case HotKeys.studioIndex:
+                    StudioWindowController.shared.show(self)
+                case HotKeys.rageQuitIndex:
+                    self.armOrFireRageQuit()
                 case HotKeys.sceneBaseIndex...(HotKeys.sceneBaseIndex + HotKeys.sceneCount - 1):
                     self.recallScene(index - HotKeys.sceneBaseIndex + 1)
                 default:
@@ -235,6 +263,11 @@ final class CameraManager: ObservableObject {
             Task { @MainActor in
                 for url in urls { self?.handleCommand(url) }
             }
+        }
+        NotificationCenter.default.addObserver(forName: AVCaptureSession.runtimeErrorNotification, object: nil, queue: .main) { note in
+            let error = note.userInfo?[AVCaptureSessionErrorKey] as? Error
+            let input = (note.object as? AVCaptureSession)?.inputs.first as? AVCaptureDeviceInput
+            camLog.error("session: erreur sur \(input?.device.localizedName ?? "?", privacy: .public) (\(error?.localizedDescription ?? "?", privacy: .public))")
         }
         NotificationCenter.default.addObserver(forName: ProcessInfo.thermalStateDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
             let state = ProcessInfo.processInfo.thermalState
@@ -254,7 +287,7 @@ final class CameraManager: ObservableObject {
                 self?.virtualCameraStateChanged(connected: connected, watching: watching)
             }
         }
-        systemExtension.activateIfInstalled()
+        systemExtension.synchronize()
         AVCaptureDevice.requestAccess(for: .video) { granted in
             Task { @MainActor in
                 self.denied = !granted
@@ -301,6 +334,41 @@ final class CameraManager: ObservableObject {
         contrast = 1
         saturation = 1
         warmth = 0
+    }
+
+    func armOrFireRageQuit() {
+        if rageQuitArmed {
+            rageQuit()
+            return
+        }
+        guard !rageQuitting else { return }
+        rageQuitArmed = true
+        NSSound(named: "Basso")?.play()
+        rageQuitDisarm?.cancel()
+        rageQuitDisarm = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 3_000_000_000)
+            guard !Task.isCancelled else { return }
+            self?.rageQuitArmed = false
+        }
+    }
+
+    func rageQuit() {
+        guard !rageQuitting else { return }
+        rageQuitDisarm?.cancel()
+        rageQuitArmed = false
+        rageQuitting = true
+        camLog.notice("rageQuit: départ fracassant")
+        pipeline.rageQuit(caption: String(localized: "J'en ai marre."))
+    }
+
+    private func rageQuitEnded() {
+        rageQuitting = false
+        spinning = false
+        standbyActive = true
+    }
+
+    private func pushSpin() {
+        pipeline.setSpin(spinning ? spinSpeed.degreesPerSecond * (spinClockwise ? 1 : -1) : 0)
     }
 
     func setPreviewActive(_ active: Bool) {
@@ -391,6 +459,10 @@ final class CameraManager: ObservableObject {
 
     func installVirtualCamera() {
         systemExtension.install()
+    }
+
+    func reinstallVirtualCamera() {
+        systemExtension.reinstall()
     }
 
 
@@ -505,6 +577,12 @@ final class CameraManager: ObservableObject {
             }
         case "snapshot":
             captureSnapshot()
+        case "studio":
+            StudioWindowController.shared.show(self)
+        case "spin":
+            spinning = boolValue(argument, current: spinning)
+        case "ragequit":
+            rageQuit()
         default:
             camLog.error("handleCommand: action inconnue \(url.absoluteString)")
         }
@@ -555,6 +633,7 @@ final class CameraManager: ObservableObject {
             } else {
                 pipeline.setVirtualSink(nil)
             }
+            systemExtension.refresh()
         }
         onAir = watching
         if clientsWatching != watching {
@@ -623,7 +702,13 @@ final class CameraManager: ObservableObject {
     }
 
     private func makeSession(for device: AVCaptureDevice, preset: AVCaptureSession.Preset) -> (AVCaptureSession, AVCaptureVideoDataOutput)? {
-        guard let input = try? AVCaptureDeviceInput(device: device) else { return nil }
+        let input: AVCaptureDeviceInput
+        do {
+            input = try AVCaptureDeviceInput(device: device)
+        } catch {
+            camLog.error("makeSession: \(device.localizedName, privacy: .public) inaccessible (\(error.localizedDescription, privacy: .public))")
+            return nil
+        }
         let session = AVCaptureSession()
         if session.canSetSessionPreset(preset) {
             session.sessionPreset = preset
@@ -632,9 +717,15 @@ final class CameraManager: ObservableObject {
         output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
         output.alwaysDiscardsLateVideoFrames = true
         output.setSampleBufferDelegate(pipeline, queue: pipeline.queue)
-        guard session.canAddInput(input) else { return nil }
+        guard session.canAddInput(input) else {
+            camLog.error("makeSession: entrée refusée pour \(device.localizedName, privacy: .public)")
+            return nil
+        }
         session.addInput(input)
-        guard session.canAddOutput(output) else { return nil }
+        guard session.canAddOutput(output) else {
+            camLog.error("makeSession: sortie refusée pour \(device.localizedName, privacy: .public)")
+            return nil
+        }
         session.addOutput(output)
         return (session, output)
     }
@@ -698,13 +789,28 @@ final class CameraManager: ObservableObject {
     }
 
     private nonisolated static func isVirtualCamera(_ device: AVCaptureDevice) -> Bool {
-        if device.transportType == Int32(kIOAudioDeviceTransportTypeVirtual) { return true }
         if device.uniqueID.contains("studio.kma.Cameras") || device.localizedName == "Cameras" { return true }
+        if device.deviceType == .builtInWideAngleCamera { return false }
+        if #available(macOS 14.0, *), device.deviceType == .continuityCamera { return false }
+        if device.transportType == Int32(kIOAudioDeviceTransportTypeVirtual) { return true }
         return device.localizedName.localizedCaseInsensitiveContains("virtual")
     }
 
+    private nonisolated static func fourCC(_ value: Int32) -> String {
+        let bytes = withUnsafeBytes(of: UInt32(bitPattern: value).bigEndian) { Array($0) }
+        return String(bytes: bytes, encoding: .ascii) ?? String(value)
+    }
+
     private func devicesChanged() {
-        devices = discovery.devices.filter { !Self.isVirtualCamera($0) }
+        let discovered = discovery.devices
+        for device in discovered {
+            let verdict = Self.isVirtualCamera(device) ? "ignorée (virtuelle)" : "retenue"
+            camLog.notice("devices: \(device.localizedName, privacy: .public) [\(device.deviceType.rawValue, privacy: .public), \(Self.fourCC(device.transportType), privacy: .public)] \(verdict, privacy: .public)")
+        }
+        if discovered.isEmpty {
+            camLog.notice("devices: aucune caméra vue par macOS")
+        }
+        devices = discovered.filter { !Self.isVirtualCamera($0) }
         if let activeID, !devices.contains(where: { $0.uniqueID == activeID }) {
             self.activeID = nil
             activeSession?.stopRunning()

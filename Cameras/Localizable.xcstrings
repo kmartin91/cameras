@@ -251,16 +251,6 @@
         }
       }
     },
-    "Caméra virtuelle installée — en veille" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Virtual camera installed — idle"
-          }
-        }
-      }
-    },
     "Installer la caméra virtuelle" : {
       "localizations" : {
         "en" : {
@@ -830,6 +820,536 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saves the image broadcast by Cameras as a PNG on the Desktop."
+          }
+        }
+      }
+    },
+    "Mode Studio (régie)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Studio mode (control room)"
+          }
+        }
+      }
+    },
+    "Régie Cameras" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cameras Control Room"
+          }
+        }
+      }
+    },
+    "Rotation continue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuous rotation"
+          }
+        }
+      }
+    },
+    "Vitesse de rotation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rotation speed"
+          }
+        }
+      }
+    },
+    "Sens horaire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clockwise"
+          }
+        }
+      }
+    },
+    "Sens anti-horaire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counterclockwise"
+          }
+        }
+      }
+    },
+    "Lente" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Slow"
+          }
+        }
+      }
+    },
+    "Rapide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fast"
+          }
+        }
+      }
+    },
+    "Vitesse" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speed"
+          }
+        }
+      }
+    },
+    "Sens" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction"
+          }
+        }
+      }
+    },
+    "Horaire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clockwise"
+          }
+        }
+      }
+    },
+    "Anti-horaire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Counterclockwise"
+          }
+        }
+      }
+    },
+    "Rage quit armé — rappuyez sur X" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rage quit armed — press X again"
+          }
+        }
+      }
+    },
+    "Rappuyez sur X" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press X again"
+          }
+        }
+      }
+    },
+    "X deux fois" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X twice"
+          }
+        }
+      }
+    },
+    "J'en ai marre." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I'm done."
+          }
+        }
+      }
+    },
+    "RAGE QUIT" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RAGE QUIT"
+          }
+        }
+      }
+    },
+    "Toujours au premier plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Always on top"
+          }
+        }
+      }
+    },
+    "Clavier actif" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard active"
+          }
+        }
+      }
+    },
+    "Clavier inactif — cliquez dans la fenêtre" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard inactive — click in the window"
+          }
+        }
+      }
+    },
+    "FIGÉ" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FROZEN"
+          }
+        }
+      }
+    },
+    "ATTENTE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "STANDBY"
+          }
+        }
+      }
+    },
+    "ROTATION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SPIN"
+          }
+        }
+      }
+    },
+    "MIROIR" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MIRROR"
+          }
+        }
+      }
+    },
+    "EFFETS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EFFECTS"
+          }
+        }
+      }
+    },
+    "TRANSITION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TRANSITION"
+          }
+        }
+      }
+    },
+    "CADRAGE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FRAMING"
+          }
+        }
+      }
+    },
+    "COULEUR" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "COLOR"
+          }
+        }
+      }
+    },
+    "PROGRAMME" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PROGRAM"
+          }
+        }
+      }
+    },
+    "INCRUSTATION" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PIP"
+          }
+        }
+      }
+    },
+    "SCÈNES" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SCENES"
+          }
+        }
+      }
+    },
+    "Style" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Style"
+          }
+        }
+      }
+    },
+    "Durée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration"
+          }
+        }
+      }
+    },
+    "Zoom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom"
+          }
+        }
+      }
+    },
+    "Recadrer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reframe"
+          }
+        }
+      }
+    },
+    "Échanger" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Swap"
+          }
+        }
+      }
+    },
+    "Vide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty"
+          }
+        }
+      }
+    },
+    "⌥⇧ + chiffre : enregistrer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌥⇧ + number: save"
+          }
+        }
+      }
+    },
+    "Scène %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scene %lld"
+          }
+        }
+      }
+    },
+    "Scène %lld enregistrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scene %lld saved"
+          }
+        }
+      }
+    },
+    "Aucune image de filigrane" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No watermark image"
+          }
+        }
+      }
+    },
+    "Capture enregistrée sur le Bureau" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshot saved to the Desktop"
+          }
+        }
+      }
+    },
+    "Zoomez d'abord pour recadrer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom in first to reframe"
+          }
+        }
+      }
+    },
+    "Ouvrir la régie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the control room"
+          }
+        }
+      }
+    },
+    "Ouvre la fenêtre Mode Studio de Cameras." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the Cameras studio mode window."
+          }
+        }
+      }
+    },
+    "Active ou coupe la rotation continue de l'image." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turns the continuous picture rotation on or off."
+          }
+        }
+      }
+    },
+    "Rage quit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rage quit"
+          }
+        }
+      }
+    },
+    "Réinstaller la caméra virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reinstall the virtual camera"
+          }
+        }
+      }
+    },
+    "Vérification de la caméra virtuelle…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking the virtual camera…"
+          }
+        }
+      }
+    },
+    "Caméra virtuelle désactivée — l'activer dans Réglages Système…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera disabled — enable it in System Settings…"
+          }
+        }
+      }
+    },
+    "Caméra virtuelle en cours de suppression — redémarrez le Mac" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera being removed — restart the Mac"
+          }
+        }
+      }
+    },
+    "Caméra virtuelle %@ (%@) installée mais non détectée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Virtual camera %@ (%@) installed but not detected"
+          }
+        }
+      }
+    },
+    "Joue l'animation de départ puis coupe l'image." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plays the exit animation, then cuts the picture."
           }
         }
       }

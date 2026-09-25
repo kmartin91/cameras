@@ -63,6 +63,42 @@ struct RecallSceneIntent: AppIntent {
     }
 }
 
+struct OpenStudioIntent: AppIntent {
+    static let title: LocalizedStringResource = "Ouvrir la régie"
+    static let description = IntentDescription("Ouvre la fenêtre Mode Studio de Cameras.")
+    static let openAppWhenRun = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        if let manager = CameraManager.shared {
+            StudioWindowController.shared.show(manager)
+        }
+        return .result()
+    }
+}
+
+struct ToggleSpinIntent: AppIntent {
+    static let title: LocalizedStringResource = "Rotation continue"
+    static let description = IntentDescription("Active ou coupe la rotation continue de l'image.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        CameraManager.shared?.spinning.toggle()
+        return .result()
+    }
+}
+
+struct RageQuitIntent: AppIntent {
+    static let title: LocalizedStringResource = "Rage quit"
+    static let description = IntentDescription("Joue l'animation de départ puis coupe l'image.")
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        CameraManager.shared?.rageQuit()
+        return .result()
+    }
+}
+
 struct SnapshotIntent: AppIntent {
     static let title: LocalizedStringResource = "Capturer une image"
     static let description = IntentDescription("Enregistre l'image diffusée par Cameras en PNG sur le Bureau.")
